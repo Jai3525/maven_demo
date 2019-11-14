@@ -1,0 +1,21 @@
+node {
+   
+   stage ("Code")
+   git 'https://github.com/Jai3525/maven_demo.git'
+   stage ("Build")
+   sh label: '', script: 'mvn clean verify'
+   stage ("Initating Sonar")
+   sh label: '', script: 'mvn sonar:sonar'
+   //stage ("Wait for sonar results")
+   //waitForQualityGate abortPipeline: false, credentialsId: 'e76e4610-44b4-4fc4-acab-7dacdbd5d929'
+   stage ("Junit results")
+   junit '/gameoflife-web/target/surefire-reports/*.xml'
+   stage ("Archive")
+   archive '**/*.war'
+   stage ("deploy war to testing server")
+   deploy adapters: [tomcat9(credentialsId: 'dab400e2-e4f6-46e2-96cc-d9cc70d32a7d', path: '', url: 'http://localhost:9095/')], contextPath: 'jaipipeline', war: '**/*.war'
+   
+   
+   
+   
+}
